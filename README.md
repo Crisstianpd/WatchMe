@@ -3,7 +3,9 @@
 WatchMe es un prototipo desarrollado para la detección de personas y emociones de una manera eficiente y rápida.
 
 <div style="text-align: center;">
-<img src="Extras/icon.png" width=200px">
+  <p>
+    <img src="Extras/icon.png" width=200px">
+  </p>
 </div>
 <br >
 
