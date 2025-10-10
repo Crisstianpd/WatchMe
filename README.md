@@ -1,5 +1,5 @@
 
-# WactheMe
+# WatchMe
 
 <p align="center">
   <img src="Extras/logo.png" width=300px">
