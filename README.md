@@ -1,10 +1,11 @@
-# WactheMe
 
-WatchMe es un prototipo desarrollado para la detección de personas y emociones de una manera eficiente y rápida.
+# WactheMe
 
 <p align="center">
   <img src="Extras/logo.png" width=300px">
 </p>
+
+WatchMe es un prototipo creado para la detección de personas y emociones de una manera eficiente y rápida.
 
 Este programa fue desarrollado bajo el lenguaje de programación Python y las librerías MediaPipe para la detección y cálculo de la maya de puntos correspondiente al rostro que se identifique, y OpenCV para poder trabajar con la cámara del dispositivo.
 <p align="center">
