@@ -5,7 +5,6 @@ WatchMe es un prototipo desarrollado para la detección de personas y emociones 
 <p align="center">
   <img src="Extras/icon.png" width=200px">
 </p>
-<br >
 
 Este programa fue desarrollado bajo el lenguaje de programación Python y las librerías MediaPipe para la detección y cálculo de la maya de puntos correspondiente al rostro que se identifique, y OpenCV para poder trabajar con la cámara del dispositivo.
 <p align="center">
@@ -20,10 +19,9 @@ Para la detección de emociones, se decidió realizar la implementación del Fac
 
 Esto, ya que al hacer uso de redes neuronales o convolucionales sería muy costoso a nivel de recursos y potencia computacional, lo cual es algo que no nos conviene ya que queremos que el programa sea lo más optimo y accesible posible.
 
-<div style="text-align: center;">
-<img src="Extras/decodificacion-facial_block_2.jpeg" height="300px">
-</div>
-<br >
+<p align="center">
+  <img src="Extras/decodificacion-facial_block_2.jpeg" height="300px">
+</p>
 
 ### Dentro del programa, este sistema funciona de la siguiente manera:
 
@@ -35,35 +33,16 @@ Esto, ya que al hacer uso de redes neuronales o convolucionales sería muy costo
 ## Ejemplo del funcionamiento del sistema FACS y MediaPipe
 Se toman las distancias de los puntos `65` y `158` para la ceja derecha, y los puntos `295` y `385` para la ceja izquierda.
 
-<div style="text-align: center;">
-<img src="Extras/mediapipe_face_landmark_fullsize.png" height="400px">
-<img src="Extras/Capturas/" height="400px">
-</div>
-<br>
+>[Landmarks image]("Extras/mediapipe_face_landmark_fullsize.png")
+
 
 En caso de que la distancia entre estos dos grupos de puntos sea menor o igual a 15, quiere indicar que la persona tiene sus dos cejas (derecha e izquierda) hacia abajo. Esta será una micro expresión.
 
-<div style="text-align: center;">
-<img src="Extras/Capturas/" height="400px">
-</div>
-<br>
-
 Y en caso de que estas dos micro expresiones en conjunto con otras, lleguen a coincidir con las micro expresiones que forman una cierta emoción, se determinara que dicha emoción detectada es la que presenta el rostro.
-
-<div style="text-align: center;">
-<img src="Extras/Capturas/" height="400px">
-</div>
-<br>
-
 
 ## Extra del programa
 
 Al trabajar con distancia entre puntos, se observaron irregularidades en estos valores dependiendo de la distancia a la que se encuentre el rostro en relación de la cámara. Por ello, se decidió hacer un recorte del frame que recolecta OpenCV a manera de que este recorte, mantenga al rostro siempre enfocado y abarcando todo el espacio dentro de un lienzo nuevo de 480x480.
-
-<div style="text-align: center;">
-<img src="Extras/Capturas/" height="400px">
-</div>
-<br>
 
 De esta manera y con ayuda de otras técnicas como un suavizado por buffer y usando la distancia de los ojos como constante para normalizar los demás datos, se logró obtener valores, en relación con la distancia entre puntos, mucho mas precisos y que presentan la menor cantidad de cambios drásticos a la hora que el rostro este cerca, lejos o gire hacia un lado u otro.
 
