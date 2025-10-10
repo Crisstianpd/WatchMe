@@ -33,7 +33,7 @@ Esto, ya que al hacer uso de redes neuronales o convolucionales sería muy costo
 ## Ejemplo del funcionamiento del sistema FACS y MediaPipe
 Se toman las distancias de los puntos `65` y `158` para la ceja derecha, y los puntos `295` y `385` para la ceja izquierda.
 
->[Landmarks image]("Extras/mediapipe_face_landmark_fullsize.png")
+>[Landmarks image]("https://github.com/Crisstianpd/WatchMe/blob/f845ad6ee105f965ed2185a6bd13be698782a03d/Extras/mediapipe_face_landmark_fullsize.png")
 
 
 En caso de que la distancia entre estos dos grupos de puntos sea menor o igual a 15, quiere indicar que la persona tiene sus dos cejas (derecha e izquierda) hacia abajo. Esta será una micro expresión.
