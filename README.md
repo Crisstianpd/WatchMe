@@ -39,7 +39,6 @@ El **Facial Action Coding System (FACS)** es un estándar desarrollado por los p
 | Recursos computacionales | Muy bajo                    | Alto (GPU recomendada)       |
 | Velocidad                | Real-time en CPU            | Lento sin aceleración        |
 | Accesibilidad            | Funciona en laptops básicas | Requiere hardware potente    |
-| Transparencia            | Reglas explícitas           | Caja negra                   |
 
 ---
 
@@ -77,15 +76,26 @@ todas_las_metricas = distancia_puntos / ref_dist * 100
 
 Se miden distancias entre **puntos clave** normalizados:
 
-| Métrica                | Puntos MediaPipe       | Significado |
-|------------------------|-------------------------|-----------|
-| `ceja_der`             | 65 -> 158                | Altura ceja derecha |
-| `ceja_izq`             | 295 -> 385               | Altura ceja izquierda |
-| `ancho_boca`           | 78 -> 308                | Ancho de la boca |
-| `alto_boca`            | 13 -> 14                 | Apertura vertical boca |
-| `entrecejo`            | 8 -> 168                 | Arruga entre cejas |
-| `apertura_ojo_izq`     | 159 -> 145               | Apertura ojo izquierdo |
-| `elevacion_com_izq`    | 61 -> 84                 | Elevación comisura izquierda |
+| Métrica                 | Puntos MediaPipe | Significado                    | AU (Action Unit)             |
+| ----------------------- | ---------------- | ------------------------------ | ---------------------------- |
+| `ceja_der`              | 65 → 158         | Altura de la ceja derecha      | AU1, AU2, AU4                |
+| `ceja_izq`              | 295 → 385        | Altura de la ceja izquierda    | AU1, AU2, AU4                |
+| `ancho_boca`            | 78 → 308         | Ancho de la boca               | AU12, AU15, AU20, AU23, AU26 |
+| `alto_boca`             | 13 → 14          | Apertura vertical de la boca   | AU12, AU15, AU20, AU23, AU26 |
+| `entrecejo`             | 8 → 168          | Arruga entre cejas (entrecejo) | AU4                          |
+| `apertura_ojo_izq`      | 159 → 145        | Apertura del ojo izquierdo     | AU5, AU7                     |
+| `apertura_ojo_der`      | 386 → 374        | Apertura del ojo derecho       | AU5, AU7                     |
+| `elevacion_com_izq`     | 61 → 84          | Elevación comisura izquierda   | AU12, AU15                   |
+| `elevacion_com_der`     | 291 → 314        | Elevación comisura derecha     | AU12, AU15                   |
+| `pliegue_nas_izq`       | 220 → 305        | Pliegue nasolabial izquierdo   | AU6                          |
+| `pliegue_nas_der`       | 440 → 75         | Pliegue nasolabial derecho     | AU6                          |
+| `tension_menton`        | 18 → 175         | Tensión del mentón             | AU17                         |
+| `elevacion_mejilla_izq` | 116 → 117        | Elevación mejilla izquierda    | AU6                          |
+| `elevacion_mejilla_der` | 345 → 346        | Elevación mejilla derecha      | AU6                          |
+| `contraccion_nariz`     | 19 → 20          | Contracción de la nariz        | AU9                          |
+| `tension_labio_sup`     | 0 → 17           | Tensión del labio superior     | AU23, AU24                   |
+| `tension_labio_inf`     | 18 → 175         | Tensión del labio inferior     | AU23, AU24                   |
+
 
 > **Ejemplo**:  
 > Si `ceja_der ≤ 15` y `ceja_izq ≤ 15` -> **Cejas bajadas** (AU4)
