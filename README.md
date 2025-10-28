@@ -187,7 +187,7 @@ pip install opencv-python mediapipe
 4. Presiona **`q`** para salir.
 
 
-## 9. Autor y Licencia
+## Autor y Licencia
 **WatchMe** es un proyecto open-source creado como prototipo académico/demostrativo.
 
 > **Licencia**: Apache 2.0 License
