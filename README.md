@@ -1,20 +1,188 @@
-# WactheMe
-
-WatchMe es un prototipo desarrollado para la detección de personas y emociones de una manera eficiente y rápida.
-
+# WatchMe
+*Detección de personas y emociones con MediaPipe y el sistema FACS.*
 <p align="center">
     <img src="Extras/logo.png" width=200px">
 </p>
-<br >
 
-Este programa fue desarrollado bajo el lenguaje de programación Python y las librerías MediaPipe para la detección y cálculo de la maya de puntos correspondiente al rostro que se identifique, y OpenCV para poder trabajar con la cámara del dispositivo.
+
+
+## ¿Qué es WatchMe?
+
+**WatchMe** es un prototipo desarrollado en **Python** que permite la **detección de rostros** y la **identificación de emociones** de forma **eficiente y ligera**, sin depender de modelos de aprendizaje profundo que consuman grandes recursos computacionales.
+
+El programa utiliza:
+
+- **[MediaPipe Face Mesh](https://chuoling.github.io/mediapipe/)** > para la detección y mapeo de 468 puntos faciales (landmarks) en 3D.
 <p align="center">
     <img src="https://images.viblo.asia/d70d57f3-6756-47cd-a942-249cc1a7da82.png" height="80px">
+</p>
+
+- **[OpenCV](https://opencv.org/)** > para la captura de video desde la cámara, manipulación de frames y visualización.
+<p align="center">
     <img src="https://www.nxrte.com/wp-content/uploads/2024/06/opencv.webp" height="80px">
 </p>
-<br>
-
-## Documentación en proceso
-...
 
 
+## Sistema de Detección de Emociones: **FACS**
+
+### ¿Qué es FACS?
+
+El **Facial Action Coding System (FACS)** es un estándar desarrollado por los psicólogos **Paul Ekman** y **Wallace V. Friesen** en 1978. Codifica **microexpresiones faciales** (llamadas *Action Units* o **AU**) que, en combinación, forman emociones reconocibles.
+
+> Ejemplo:  
+> `AU6 + AU12` > Elevación de mejillas + comisuras hacia arriba = **Felicidad**
+
+### ¿Por qué FACS en lugar de redes neuronales?
+
+| Aspecto                  | FACS                        | Redes Neuronales (CNN)       |
+|--------------------------|-----------------------------|------------------------------|
+| Recursos computacionales | Muy bajo                    | Alto (GPU recomendada)       |
+| Velocidad                | Real-time en CPU            | Lento sin aceleración        |
+| Accesibilidad            | Funciona en laptops básicas | Requiere hardware potente    |
+| Transparencia            | Reglas explícitas           | Caja negra                   |
+
+---
+
+## Funcionamiento del Sistema FACS en WatchMe
+
+### Paso 1: Detección del rostro con MediaPipe
+Se procesa el frame en RGB y es pasado a MediaPipe para que devuelva los **468 landmarks** para el rostro detectado.
+
+### Paso 2: Normalización espacial (para precisión)
+Debido a la inconsistencia de los datos dependiendo de la distancia o ángulo de inclinación del rostro detectado, se implementa:
+
+#### Recorte dinámico del rostro
+```python
+face_crop = frame[y_min:y_max, x_min:x_max]
+```
+\> Se extrae solo la región del rostro.
+
+#### Redimensión a lienzo fijo de **200x200**
+```python
+target_size = 200
+scale = min(target_size / face_w, target_size / face_h)
+resized_face = cv2.resize(face_crop, (new_w, new_h))
+```
+
+#### Normalización con distancia interocular
+```python
+ref_dist = distancia entre ojos (punto 33 y 263)
+todas_las_metricas = distancia_puntos / ref_dist * 100
+```
+\> Todos los valores se expresan como **porcentaje relativo a la distancia entre ojos**, eliminando efectos de escala.
+
+---
+
+### Paso 3: Cálculo de microexpresiones (Action Units)
+
+Se miden distancias entre **puntos clave** normalizados:
+
+| Métrica                | Puntos MediaPipe       | Significado |
+|------------------------|-------------------------|-----------|
+| `ceja_der`             | 65 -> 158                | Altura ceja derecha |
+| `ceja_izq`             | 295 -> 385               | Altura ceja izquierda |
+| `ancho_boca`           | 78 -> 308                | Ancho de la boca |
+| `alto_boca`            | 13 -> 14                 | Apertura vertical boca |
+| `entrecejo`            | 8 -> 168                 | Arruga entre cejas |
+| `apertura_ojo_izq`     | 159 -> 145               | Apertura ojo izquierdo |
+| `elevacion_com_izq`    | 61 -> 84                 | Elevación comisura izquierda |
+
+> **Ejemplo**:  
+> Si `ceja_der ≤ 15` y `ceja_izq ≤ 15` -> **Cejas bajadas** (AU4)
+
+---
+
+### Paso 4: Clasificación de emociones
+
+La función `detect_emotion_facs(metrics)` evalúa **combinaciones de AUs** para determinar la emoción dominante:
+
+```python
+if (elevacion_mejilla_izq >= 9 and ... and ancho_boca > 50):
+    return 'Feliz', (0, 255, 255)
+```
+
+#### Emociones detectadas:
+| Emoción       | Color BGR       | AUs principales |
+|---------------|------------------|------------------|
+| Feliz         | `(0, 255, 255)`  | AU6 + AU12       |
+| Sonriente     | `(255, 205, 0)`  | AU6 + AU12 (leve)|
+| Tristeza      | `(0, 100, 255)`  | AU1 + AU4 + AU15 |
+| Enojo         | `(0, 0, 255)`    | AU4 + AU5 + AU7 + AU23 |
+| Miedo         | `(128, 0, 128)`  | AU1+2 + AU5 + AU20 |
+| Asombro       | `(0, 255, 255)`  | AU1+2 + AU5 + AU26 |
+| Desagrado     | `(0, 255, 0)`    | AU9 + AU15 + AU16 |
+| **Neutral**   | `(255, 255, 255)`| Ninguna combinación |
+
+---
+
+## Visualización en Tiempo Real
+
+### Rostro recortado (esquina inferior derecha)
+Se muestra en **escala de grises** con la respectiva **malla facial** dibujada (FACEMESH_TESSELATION). Siempre en un lienzo de **200x200**.
+
+### Etiqueta de emoción
+```python
+cv2.putText(frame, f"[+]: {emotion}", (x, y), ...)
+```
+\> Esta etiqueta se coloca sobre la frente del usuario.
+
+### Gráficas
+Son un total de 7 barras horizontales (una por emoción) las cuales poseen un nivel de activación basado en **promedio normalizado de métricas relevantes** y lo cual ayuda a saber que otras emociones se está teniendo una persona y con qué intensidad.
+
+Cada gráfica tiene colores coherentes con la emoción detectada.
+
+
+## Estructura del Código
+```text
+watchme.py
+├── Importación de librerías
+├── Configuración de cámara (1280x720)
+├── Inicialización de MediaPipe Face Mesh
+├── Función: detect_emotion_facs(metrics)
+├── Función: emotion_graphs(metrics, frame)
+├── Bucle principal:
+│   ├── Captura de frame
+│   ├── Procesamiento con MediaPipe
+│   ├── Recorte y escalado del rostro
+│   ├── Normalización con distancia interocular
+│   ├── Cálculo de 17 métricas FACS
+│   ├── Detección de emoción
+│   ├── Dibujo de gráficos y malla
+│   └── Visualización con OpenCV
+└── Liberación de recursos
+```
+
+
+## Requisitos de Ejecución
+```bash
+pip install opencv-python mediapipe
+```
+
+
+### Dependencias:
+- `opencv-python>=4.5`
+- `mediapipe>=0.10.0`
+- Python 3.8+
+
+> Funciona en **CPU** (no requiere GPU).
+
+
+## Uso del Programa
+1. Ejecutar:
+   ```bash
+   python watchme.py
+   ```
+2. La cámara se abrirá automáticamente.
+3. Mira a la cámara. Se detectará tu rostro y emoción.
+4. Presiona **`q`** para salir.
+
+
+## 9. Autor y Licencia
+**WatchMe** es un proyecto open-source creado como prototipo académico/demostrativo.
+
+> **Licencia**: Apache 2.0 License
+> Autor: Crisstianpd
+> Web: https://crisstianpd.vercel.app/
+
+
+Si deceas seguir trabajando en este proyecto o solamente probarlo, eres libre de hacerlo.
