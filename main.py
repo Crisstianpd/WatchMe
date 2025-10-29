@@ -15,7 +15,7 @@ windowName = "WatchMe - Deteccion de personas y emociones"
 
 # Para detectar rostros
 mpFaceMesh = mp.solutions.face_mesh
-faceMesh = mpFaceMesh.FaceMesh(max_num_faces=3)
+faceMesh = mpFaceMesh.FaceMesh(max_num_faces=1)
 
 
 

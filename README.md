@@ -130,11 +130,12 @@ if (elevacion_mejilla_izq >= 9 and ... and ancho_boca > 50):
 ### Rostro recortado (esquina inferior derecha)
 Se muestra en **escala de grises** con la respectiva **malla facial** dibujada (FACEMESH_TESSELATION). Siempre en un lienzo de **200x200**.
 
+
 ### Etiqueta de emoción
 ```python
 cv2.putText(frame, f"[+]: {emotion}", (x, y), ...)
 ```
-\> Esta etiqueta se coloca sobre la frente del usuario.
+\> Esta etiqueta se coloca sobre la frente del usuario detectado.
 
 ### Gráficas
 Son un total de 7 barras horizontales (una por emoción) las cuales poseen un nivel de activación basado en **promedio normalizado de métricas relevantes** y lo cual ayuda a saber que otras emociones se está teniendo una persona y con qué intensidad.
