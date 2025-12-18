@@ -34,13 +34,8 @@ El **Facial Action Coding System (FACS)** es un estándar desarrollado por los p
 
 ### ¿Por qué FACS en lugar de redes neuronales?
 
-| Aspecto                  | FACS                        | Redes Neuronales (CNN)       |
-|--------------------------|-----------------------------|------------------------------|
-| Recursos computacionales | Muy bajo                    | Alto (GPU recomendada)       |
-| Velocidad                | Real-time en CPU            | Lento sin aceleración        |
-| Accesibilidad            | Funciona en laptops básicas | Requiere hardware potente    |
+Se decidió usar el sistema FACS ya que de esta forma se podría identificar de manera mucho más optima y sencilla (a través de los landmarks detectados por mediapipe) pequeñas micro expresiones las cuales en conjunto ayudarían a determinar la emoción presentada por el rostro que se allá detectado. Esto, sin la necesidad de usar demasiados recursos computacionales, lo cual haría que el programa fuera poco optimo ejecutarlo en computadoras modestas.
 
----
 
 ## Funcionamiento del Sistema FACS en WatchMe
 
@@ -54,7 +49,7 @@ Debido a la inconsistencia de los datos dependiendo de la distancia o ángulo de
 ```python
 face_crop = frame[y_min:y_max, x_min:x_max]
 ```
-\> Se extrae solo la región del rostro.
+> Se extrae solo la región del rostro.
 
 #### Redimensión a lienzo fijo de **200x200**
 ```python
@@ -65,16 +60,18 @@ resized_face = cv2.resize(face_crop, (new_w, new_h))
 
 #### Normalización con distancia interocular
 ```python
-ref_dist = distancia entre ojos (punto 33 y 263)
-todas_las_metricas = distancia_puntos / ref_dist * 100
+# Datos para normalizar puntos
+eyeL = pointsList[33]
+eyeR = pointsList[263]
+ref_dist = math.hypot(eyeR[0] - eyeL[0], eyeR[1] - eyeL[1])
 ```
-\> Todos los valores se expresan como **porcentaje relativo a la distancia entre ojos**, eliminando efectos de escala.
+> Todos los valores se expresan como **porcentaje relativo a la distancia entre ojos**, eliminando efectos de escala.
 
 ---
 
 ### Paso 3: Cálculo de microexpresiones (Action Units)
 
-Se miden distancias entre **puntos clave** normalizados:
+Se miden distancias entre **puntos clave** normalizados, tomando como base las siguientes métricasÑ
 
 | Métrica                 | Puntos MediaPipe | Significado                    | AU (Action Unit)             |
 | ----------------------- | ---------------- | ------------------------------ | ---------------------------- |
@@ -111,7 +108,7 @@ if (elevacion_mejilla_izq >= 9 and ... and ancho_boca > 50):
     return 'Feliz', (0, 255, 255)
 ```
 
-#### Emociones detectadas:
+#### Lista de emociones detectadas:
 | Emoción       | Color BGR       | AUs principales |
 |---------------|------------------|------------------|
 | Feliz         | `(0, 255, 255)`  | AU6 + AU12       |
@@ -133,15 +130,15 @@ Se muestra en **escala de grises** con la respectiva **malla facial** dibujada (
 
 ### Etiqueta de emoción
 ```python
-cv2.putText(frame, f"[+]: {emotion}", (x, y), ...)
+putText_face = f"[+]: {emotion}"
+cv2.putText(frame, putText_face, (int(...), int(...)), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 3)
 ```
-\> Esta etiqueta se coloca sobre la frente del usuario detectado.
+> Esta etiqueta se coloca sobre la frente del usuario detectado.
 
 ### Gráficas
-Son un total de 7 barras horizontales (una por emoción) las cuales poseen un nivel de activación basado en **promedio normalizado de métricas relevantes** y lo cual ayuda a saber que otras emociones se está teniendo una persona y con qué intensidad.
+Son un total de 7 barras horizontales (una por emoción) las cuales poseen un nivel de activación basado en **promedio normalizado de métricas relevantes** y lo cual ayuda a saber qué otras emociones está teniendo una persona y con qué intensidad.
 
-Cada gráfica tiene colores coherentes con la emoción detectada.
-
+> Cada gráfica tiene colores específicos para cada emoción.
 
 ## Estructura del Código
 ```text
@@ -163,18 +160,13 @@ watchme.py
 └── Liberación de recursos
 ```
 
-
-## Requisitos de Ejecución
-```bash
-pip install opencv-python mediapipe
-```
-
-
 ### Dependencias:
 - `opencv-python>=4.5`
 - `mediapipe>=0.10.0`
 - Python 3.8+
-
+```bash
+pip install -r requeriments.txt
+```
 > Funciona en **CPU** (no requiere GPU).
 
 
