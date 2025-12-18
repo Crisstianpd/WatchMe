@@ -12,7 +12,7 @@
 
 El programa utiliza:
 
-- **[MediaPipe Face Mesh](https://chuoling.github.io/mediapipe/)** > para la detección y mapeo de 468 puntos faciales (landmarks) en 3D.
+- **[MediaPipe Face Mesh](https://chuoling.github.io/mediapipe/)** > para la detección y mapeo de 468 puntos faciales (landmarks) en 2D.
 <p align="center">
     <img src="https://images.viblo.asia/d70d57f3-6756-47cd-a942-249cc1a7da82.png" height="80px">
 </p>
