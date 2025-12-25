@@ -1,14 +1,14 @@
 # WatchMe
-*Detección de personas y emociones con MediaPipe y el sistema FACS.*
+*Detección de rostros y emociones con MediaPipe y el sistema FACS.*
 <p align="center">
-    <img src="Extras/logo.png" width=200px">
+    <img src="./assets/watchme.png" width="500px">
 </p>
 
 
 
 ## ¿Qué es WatchMe?
 
-**WatchMe** es un prototipo desarrollado en **Python** que permite la **detección de rostros** y la **identificación de emociones** de forma **eficiente y ligera**, sin depender de modelos de aprendizaje profundo que consuman grandes recursos computacionales.
+**WatchMe** es un prototipo desarrollado en **Python** que permite la **detección de rostros** y la **identificación de emociones** de forma **eficiente y ligera**, sin depender de modelos de aprendizaje profundo pesados que consuman grandes recursos computacionales.
 
 El programa utiliza:
 
@@ -34,7 +34,9 @@ El **Facial Action Coding System (FACS)** es un estándar desarrollado por los p
 
 ### ¿Por qué FACS en lugar de redes neuronales?
 
-Se decidió usar el sistema FACS ya que de esta forma se podría identificar de manera mucho más optima y sencilla (a través de los landmarks detectados por mediapipe) pequeñas micro expresiones las cuales en conjunto ayudarían a determinar la emoción presentada por el rostro que se allá detectado. Esto, sin la necesidad de usar demasiados recursos computacionales, lo cual haría que el programa fuera poco optimo ejecutarlo en computadoras modestas.
+Se decidió utilizar el sistema **FACS** ya que permite identificar de forma más óptima y explicable microexpresiones faciales a partir de los **landmarks** detectados por MediaPipe.  
+Estas microexpresiones, evaluadas en conjunto, permiten inferir la emoción del rostro detectado **sin necesidad de redes neuronales profundas**, lo que reduce significativamente el consumo de recursos y permite ejecutar el sistema en computadoras modestas.
+
 
 
 ## Funcionamiento del Sistema FACS en WatchMe
@@ -51,7 +53,7 @@ face_crop = frame[y_min:y_max, x_min:x_max]
 ```
 > Se extrae solo la región del rostro.
 
-#### Redimensión a lienzo fijo de **200x200**
+#### Redimensionado a lienzo fijo de **200x200**
 ```python
 target_size = 200
 scale = min(target_size / face_w, target_size / face_h)
@@ -60,18 +62,34 @@ resized_face = cv2.resize(face_crop, (new_w, new_h))
 
 #### Normalización con distancia interocular
 ```python
-# Datos para normalizar puntos
-eyeL = pointsList[33]
-eyeR = pointsList[263]
-ref_dist = math.hypot(eyeR[0] - eyeL[0], eyeR[1] - eyeL[1])
+...
+
+def normalized_distance(p1: tuple[int, int], p2: tuple[int, int], ref_dist: float) -> float:
+    return math.hypot(p2[0] - p1[0], p2[1] - p1[1]) / ref_dist * 100
+
+...
+
+# Dato para normalizar puntos (distancia interocular)
+ref_dist = math.hypot(points[263][0] - points[33][0], points[263][1] - points[33][1])
+
 ```
 > Todos los valores se expresan como **porcentaje relativo a la distancia entre ojos**, eliminando efectos de escala.
+
+```python
+metrics = {
+    ...
+    "ceja_izq": normalized_distance(points[295], points[385], ref_dist),
+    "ancho_boca": normalized_distance(points[78], points[308], ref_dist),
+    "alto_boca": normalized_distance(points[13], points[14], ref_dist),
+    ...
+}
+```
 
 ---
 
 ### Paso 3: Cálculo de microexpresiones (Action Units)
 
-Se miden distancias entre **puntos clave** normalizados, tomando como base las siguientes métricasÑ
+Se miden distancias entre **puntos clave** normalizados, tomando como base las siguientes métricas
 
 | Métrica                 | Puntos MediaPipe | Significado                    | AU (Action Unit)             |
 | ----------------------- | ---------------- | ------------------------------ | ---------------------------- |
@@ -130,8 +148,7 @@ Se muestra en **escala de grises** con la respectiva **malla facial** dibujada (
 
 ### Etiqueta de emoción
 ```python
-putText_face = f"[+]: {emotion}"
-cv2.putText(frame, putText_face, (int(...), int(...)), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 3)
+cv2.putText(frame, f"[+]: {emotion}", (int((faces[10].x * w)/1.5), int(faces[10].y * h)), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 3)
 ```
 > Esta etiqueta se coloca sobre la frente del usuario detectado.
 
@@ -161,14 +178,23 @@ watchme.py
 ```
 
 ### Dependencias:
-- `opencv-python>=4.5`
-- `mediapipe>=0.10.0`
-- Python 3.8+
+Librerías:
+- `mediapipe>=0.10.31`
+- `numpy>=2.2.6`
+- `opencv-python>=4.12.0.88`
+- Python 3.11+
 ```bash
-pip install -r requeriments.txt
+pip install -r requirements.txt
 ```
 > Funciona en **CPU** (no requiere GPU).
 
+Descarga el modelo de MediaPipe(Face Landmarker Model):
+```bash
+curl -o face_landmarker.task https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task
+```
+> El archivo face_landmarker.task es un modelo preentrenado, no una librería de Python.
+> 
+> Si el archivo ya está presente en el proyecto, este paso no es necesario.
 
 ## Uso del Programa
 1. Ejecutar:
@@ -184,8 +210,8 @@ pip install -r requeriments.txt
 **WatchMe** es un proyecto open-source creado como prototipo académico/demostrativo.
 
 > **Licencia**: Apache 2.0 License
-> Autor: Crisstianpd
+> Autor: Cristian Alexander (Crisstianpd)
 > Web: https://crisstianpd.vercel.app/
 
 
-Si deceas seguir trabajando en este proyecto o solamente probarlo, eres libre de hacerlo.
+Si deseas seguir desarrollando este proyecto o simplemente probarlo, eres libre de hacerlo.
