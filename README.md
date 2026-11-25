@@ -211,7 +211,6 @@ curl -o face_landmarker.task https://storage.googleapis.com/mediapipe-models/fac
 
 > **Licencia**: Apache 2.0 License
 > Autor: Cristian Alexander (Crisstianpd)
-> Web: https://crisstianpd.vercel.app/
 
 
 Si deseas seguir desarrollando este proyecto o simplemente probarlo, eres libre de hacerlo.
